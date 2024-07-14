@@ -40,6 +40,10 @@ class Client
         array $params = [],
         array $headers = []
     ): ResponseInterface {
+        if (!$this->apiKey) {
+            throw new InvalidArgumentException('API key is not set');
+        }
+
         $baseUrl = $this->baseUrl;
 
         $req = $this->requestFactory
