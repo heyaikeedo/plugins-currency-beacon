@@ -12,10 +12,37 @@ use RuntimeException;
 use Shared\Domain\ValueObjects\CurrencyCode;
 use Shared\Infrastructure\CommandBus\Dispatcher;
 
+/**
+ * Currency Beacon rate provider.
+ * 
+ * This is the main class of the Currency Beacon rate provider plugin. It 
+ * implements the RateProviderInterface and provides the exchange rate between
+ * two currencies.
+ * 
+ * All currency rate providers must implement the RateProviderInterface. 
+ * Depending on the plugin functionality, plugin can implement additional 
+ * interfaces or extend other classes.
+ */
 class CurrencyBeacon implements RateProviderInterface
 {
+    /**
+     * The lookup key for the Currency Beacon rate provider.
+     * 
+     * We'll this key to register and lookup the rate provider with the rate 
+     * provider collection.
+     * 
+     * Key also will be used as a path parameter for the RequestHandler.
+     */
     public const LOOKUP_KEY = 'currency-beacon';
 
+    /**
+     * Constructs a new CurrencyBeacon instance.
+     *
+     * @param Dispatcher $dispatcher The event dispatcher.
+     * @param Client $client The HTTP client.
+     * @param string|null $updatedAt The last update timestamp of the rates.
+     * @param array|null $rates The currency rates.
+     */
     public function __construct(
         private Dispatcher $dispatcher,
         private Client $client,
@@ -41,12 +68,18 @@ class CurrencyBeacon implements RateProviderInterface
         return $rates[$to->value] / $rates[$from->value];
     }
 
+    /**
+     * Get the currency rates. If the rates are not available or outdated,
+     * fetch the rates from the API.
+     *
+     * @return array The currency rates.
+     */
     private function getRates(): array
     {
         if (
             $this->rates
             && $this->updatedAt
-            && $this->updatedAt + 3600 * 4 >= time()
+            && $this->updatedAt + 3600 * 4 >= time() // Update every 4 hours
         ) {
             return $this->rates;
         }
@@ -55,7 +88,7 @@ class CurrencyBeacon implements RateProviderInterface
 
         // Save new data date
         $cmd = new SaveOptionCommand(
-            'currency-beacon',
+            'currency-beacon', // Unique key for the option
             json_encode(
                 [
                     'updated_at' => time(),
@@ -64,11 +97,18 @@ class CurrencyBeacon implements RateProviderInterface
             )
         );
 
+        // Save the option to the database
         $this->dispatcher->dispatch($cmd);
 
         return $rates;
     }
 
+    /**
+     * Fetch the currency rates from the API.
+     *
+     * @return array The currency rates.
+     * @throws RuntimeException If failed to fetch currency rates.
+     */
     private function fetchRates(): array
     {
         $response = $this->client->sendRequest('GET', '/v1/latest', params: [

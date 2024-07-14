@@ -12,6 +12,9 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
+/**
+ * Http client for to send requests to the Currency Beacon API.
+ */
 class Client
 {
     private string $baseUrl = 'https://api.currencybeacon.com';

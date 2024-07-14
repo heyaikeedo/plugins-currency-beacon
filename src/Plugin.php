@@ -14,7 +14,7 @@ use Twig\Loader\FilesystemLoader;
 class Plugin implements PluginInterface
 {
     /**
-     * Plugin constructor.
+     * Plugin constructor. Inject required dependencies for the plugin.
      *
      * @param FilesystemLoader $loader TWIG loader.
      * @param AttributeMapper $mapper Route mapper. 
