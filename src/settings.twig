@@ -1,0 +1,71 @@
+{% extends "/layouts/main.twig" %}
+{% set active_menu = 'settings' %}
+
+{% set xdata = 'settings' %}
+{% block title p__('title', 'Currency Beacon settings') %}
+
+{% block template %}
+<div>
+  {% include "snippets/back.twig" with {link: 'admin/settings', label: 'Settings'} %}
+
+  <h1 class="mt-4">Currency Beacon</h1>
+</div>
+
+<x-form>
+  <form class="flex flex-col gap-8" @submit.prevent="submit" x-ref="form">
+    <div class="flex flex-col gap-2">
+      <section class="flex flex-col gap-6 box" data-density="comfortable">
+        <h2>{{ p__('heading', 'API') }}</h2>
+
+        <div>
+          <label for="currency_beacon.api_key">
+            {{ p__('label', 'API Key') }}
+          </label>
+
+          <div class="relative mt-2" x-data="{isVisible: false}">
+            <input class="input pr-11" id="currency_beacon.api_key"
+              name="currency_beacon[api_key]"
+              :type="isVisible ? 'text' : 'password'" autocomplete="off"
+              placeholder="{{ __('Include your API key') }}"
+              value="{{ environment == 'demo' ? 'hidden-in-demo' : option.currency_beacon.api_key ?? '' }}"
+              required>
+
+            <button type="button"
+              class="absolute text-2xl -translate-y-1/2 top-1/2 right-3 text-content-dimmed"
+              @click="isVisible = !isVisible">
+              <i class="block ti"
+                :class="{'ti-eye-closed' : isVisible, 'ti-eye': !isVisible}"></i>
+            </button>
+          </div>
+
+
+          <ul
+            class="m-3 mb-0 text-xs list-disc list-inside text-content-dimmed">
+            <li>
+              {{ __('Can\'t find your API Key?') }}
+
+              <a href="https://currencybeacon.com/account/dashboard"
+                target="_blank" class="text-content hover:underline">
+                {{ p__('button', 'Click here') }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <div class="flex justify-end gap-4">
+      <a href="admin/settings" class="button button-outline">
+        {{ p__('button', 'Cancel') }}
+      </a>
+
+      <button class="button button-accent" type="submit"
+        :processing="isProcessing">
+        {% include "/snippets/spinner.twig" %}
+
+        {{ p__('button', 'Save changes') }}
+      </button>
+    </div>
+  </form>
+</x-form>
+{% endblock %}
