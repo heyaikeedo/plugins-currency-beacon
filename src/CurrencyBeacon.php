@@ -88,7 +88,7 @@ class CurrencyBeacon implements RateProviderInterface
 
         // Save new data date
         $cmd = new SaveOptionCommand(
-            'currency-beacon', // Unique key for the option
+            'currency_beacon', // Unique key for the option
             json_encode(
                 [
                     'updated_at' => time(),
